@@ -3,8 +3,8 @@
 ### Table of Contents
 * [Introduction](#Introduction)
 * [Overview](#Overview)
-    * [HTTP verbs](#HTTP-verbs)
-    * [HTTP status codes](#HTTP-status-codes)
+    * [HTTP verbs](#HTTP verbs)
+    * [HTTP status codes](#HTTP status codes)
 * [Resources](#Resources)
     * [Entitlement](#Entitlement)
         * [Creating/Updating Entitlement](#create_ent)
@@ -24,10 +24,10 @@
             * [Example request](#query_ent_3)
             * [Example response](#query_ent_4)
             
-# Introduction
+# <a name=“Introduction”></a>Introduction
 Entitlement-service is a RESTful microservice for storing and fetching entitlements related to LDS project. It is an external facing RESTful microservice where data is pushed to it by Subscription Service.The internal services of License Delivery Service are the consumers of this service. This service only supports the GET and POST HTTP verbs.
 
-# Overview
+# <a name=“Overview”></a>Overview
 ## <a name=“HTTP verbs”></a>HTTP verbs
 
 Entitlement-service tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP verbs. Due to some external factors it had to merge the POST and PATCH verbs, i.e. re-POSTing an entitlement will update the existing entitlement if any.
@@ -37,7 +37,7 @@ Entitlement-service tries to adhere as closely as possible to standard HTTP and 
 | `GET`  | Used to retrieve a resource                             |
 | `POST` | Used to create a new resource or update an existing one |
 
-## HTTP status codes
+## <a name=“HTTP status codes”></a>HTTP status codes
 
 Entitlement-service tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP status codes.
 
