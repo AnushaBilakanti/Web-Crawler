@@ -6,7 +6,7 @@
     * [HTTP verbs](#HTTP_verbs)
     * [HTTP status codes](#HTTP_status_codes)
 * [Resources](#Resource_1)
-    * [Entitlement](#Entitlement)
+    * [Entitlement](#Entitlement_1)
         * [Creating/Updating Entitlement](#create_ent)
             * [Request structure](#create-ent-1)
             * [Example request](#create_ent_2)
