@@ -1,11 +1,11 @@
 # **Entitlement-service Getting Started Guide**
 
 ### Table of Contents
-* [Introduction](#Introduction)
-* [Overview](#Overview)
-    * [HTTP verbs](#HTTP-verbs)
-    * [HTTP status codes](#HTTP-status-codes)
-* [Resources](#Resources)
+* [Introduction](#Intro_1)
+* [Overview](#Over_1)
+    * [HTTP verbs](#HTTP_verbs)
+    * [HTTP status codes](#HTTP_status_codes)
+* [Resources](#Resource_1)
     * [Entitlement](#Entitlement)
         * [Creating/Updating Entitlement](#create_ent)
             * [Request structure](#create-ent-1)
@@ -24,11 +24,11 @@
             * [Example request](#query_ent_3)
             * [Example response](#query_ent_4)
             
-# <a name=“Introduction”></a>Introduction
+# <a name="Intro_1"></a>Introduction
 Entitlement-service is a RESTful microservice for storing and fetching entitlements related to LDS project. It is an external facing RESTful microservice where data is pushed to it by Subscription Service.The internal services of License Delivery Service are the consumers of this service. This service only supports the GET and POST HTTP verbs.
 
-# <a name=“Overview”></a>Overview
-## <a name="HTTP verbs"></a>HTTP verbs
+# <a name="Over_1"></a>Overview
+## <a name="HTTP_verbs"></a>HTTP verbs
 
 Entitlement-service tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP verbs. Due to some external factors it had to merge the POST and PATCH verbs, i.e. re-POSTing an entitlement will update the existing entitlement if any.
 
@@ -37,7 +37,7 @@ Entitlement-service tries to adhere as closely as possible to standard HTTP and 
 | `GET`  | Used to retrieve a resource                             |
 | `POST` | Used to create a new resource or update an existing one |
 
-## <a name="HTTP status codes"></a>HTTP status codes
+## <a name="HTTP_status_codes"></a>HTTP status codes
 
 
 Entitlement-service tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP status codes.
@@ -50,13 +50,14 @@ Entitlement-service tries to adhere as closely as possible to standard HTTP and 
 | The request has been fulfilled and resulted in a new resource being created.                                                                                                                               | `204 No Content`                                                                               |
 | The server successfully processed the request, but is not returning any content.                                                                                                                           | `400 Bad Request`                                                                              |
 | The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing). | `404 Not Found`                                                                                |
-# <a name=“Resources”></a>Resources
 
-## <a name=“Entitlement”></a>Entitlement
+# <a name="Resource_1"></a>Resources
+
+## <a name="Entitlement_1"></a>Entitlement
 
 The Entitlement resource is used to create, modify and fetch entitlements.
 
-### Creating/Updating Entitlement
+### <a name="create_ent"></a>Creating/Updating Entitlement
 
 A `POST` request creates a new entitlement or updates an existing entitlement having same activation code.
 
