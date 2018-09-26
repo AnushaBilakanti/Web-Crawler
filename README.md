@@ -3,8 +3,8 @@
 ### Table of Contents
 * [Introduction](#Introduction)
 * [Overview](#Overview)
-    * [HTTP verbs](#HTTP verbs)
-    * [HTTP status codes](#HTTP status codes)
+    * [HTTP verbs](#HTTP-verbs)
+    * [HTTP status codes](#HTTP-status-codes)
 * [Resources](#Resources)
     * [Entitlement](#Entitlement)
         * [Creating/Updating Entitlement](#create_ent)
@@ -37,7 +37,8 @@ Entitlement-service tries to adhere as closely as possible to standard HTTP and 
 | `GET`  | Used to retrieve a resource                             |
 | `POST` | Used to create a new resource or update an existing one |
 
-## <a name=“HTTP status codes”></a>HTTP status codes
+## <a name="HTTP status codes"></a>HTTP status codes
+
 
 Entitlement-service tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP status codes.
 
