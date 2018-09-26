@@ -1,540 +1,284 @@
-# **License Delivery Service Getting Started Guide**
+# **Entitlement-service Getting Started Guide**
 
 ### Table of Contents
 * [Introduction](#Introduction)
-* [Asynchronous LDS Service](#Asynchronous_LDS_Service)
+* [Overview](#Overview)
+    * [HTTP verbs](#HTTP-verbs)
     * [HTTP status codes](#HTTP-status-codes)
-    * [Activate License Request](#Activate_License_Request)
-        * [Request](#req_1)
-            * [Request Structure](#req_1_str)
-            * [Example Curl Request](#req_1_curl)
-            * [Example Request](#req_1_req)
-        * [Response](#req_1_res)
-            * [Activate Response Structure](#req_1_res_str)
-            * [Activate Response Example](#req_1_res_eg)
-    * [Deactivate License Request](#Deactivate_License_Request)
-        * [Request](#req_2)
-            * [Request Structure](#req_2_str)
-            * [Example Curl Request](#req_2_curl)
-            * [Example Request](#req_2_req)
-        * [Response](#req_2_res)
-            * [Deactivate Response Structure](#req_2_res_str)
-            * [Deactivate Response Example](#req_2_res_eg)
-    * [Refresh License Request](#Refresh_License_Request)
-        * [Request](#req_3)
-            * [Request Structure](#req_3_str)
-            * [Example Curl Request](#req_3_curl)
-            * [Example Request](#req_3_req)
-        * [Response](#req_3_res)
-            * [Refresh Response Structure](#req_3_res_str)
-            * [Refresh Response Example](#req_3_res_eg)
-    * [Poll Message](#req_4)
-        * [Request Structure](#req_4_str)
-        * [Example Curl Request](#req_4_curl)
-        * [Example Request](#req_4_req)
-        * [Response Structure](#req_4_res_str)
-        * [Example Response](#req_4_res_eg)
-* [Synchronous LDS Service](#Synchronous_LDS_Service)
-    * [HTTP status codes](#syn_HTTP-status-codes)
-    * [Activate License Request](#syn_Activate_License_Request)
-        * [Request](#syn_req_1)
-            * [Request Structure](#syn_req_1_str)
-            * [Example Curl Request](#syn_req_1_curl)
-            * [Example Request](#syn_req_1_req)
-        * [Response](#syn_req_1_res)
-            * [Activate Response Structure](#syn_req_1_res_str)
-            * [Activate Response Example](#syn_req_1_res_eg)
-    * [Deactivate License Request](#syn_Deactivate_License_Request)
-        * [Request](#syn_req_2)
-            * [Request Structure](#syn_req_2_str)
-            * [Example Curl Request](#syn_req_2_curl)
-            * [Example Request](#syn_req_2_req)
-        * [Response](#syn_req_2_res)
-            * [Deactivate Response Structure](#syn_req_2_res_str)
-            * [Deactivate Response Example](#syn_req_2_res_eg)
-    * [Refresh License Request](#syn_Refresh_License_Request)
-        * [Request](#syn_req_3)
-            * [Request Structure](#syn_req_3_str)
-            * [Example Curl Request](#syn_req_3_curl)
-            * [Example Request](#syn_req_3_req)
-        * [Response](#syn_req_3_res)
-            * [Refresh Response Structure](#syn_req_3_res_str)
-            * [Refresh Response Example](#syn_req_3_res_eg)
-        * [Available License Seats Request](#syn_req_3_seat)
-            * [Example curl request](#syn_req_3_seat_curl)
-            * [Example request](#syn_req_3_seat_req)   
-            * [Example response](#syn_req_3_seat_res)
+* [Resources](#Resources)
+    * [Entitlement](#Entitlement)
+        * [Creating/Updating Entitlement](#create_ent)
+            * [Request structure](#create-ent-1)
+            * [Example request](#create_ent_2)
+            * [Example response](#create_ent_3)
+        * [Fetching entitlement](#fetch_ent)
+            * [Response structure](#fetch_ent_1)
+            * [Example request](#fetch_ent_2)
+            * [Example response](#fetch_ent_3)
+        * [Fetching entitlement which doesn’t exist](#fetch_ent_not_exists)
+            * [Example request](#fetch_ent_not_exists_1)
+            * [Example response](#fetch_ent_not_exists_2)
+        * [Querying entitlements by Webkey](#query_ent)
+            * [Response structure](#query_ent_1)
+            * [Example curl request](#query_ent_2)
+            * [Example request](#query_ent_3)
+            * [Example response](#query_ent_4)
+            
+# <a name=“Introduction”></a>Introduction
+Entitlement-service is a RESTful microservice for storing and fetching entitlements related to LDS project. It is an external facing RESTful microservice where data is pushed to it by Subscription Service.The internal services of License Delivery Service are the consumers of this service. This service only supports the GET and POST HTTP verbs.
 
-# <a name="Introduction"></a>Introduction
-License Delivery Service is the main RESTful microservice controller that is responsible for handling client requests and facilitating communication between the internal microservices. This service only supports the POST HTTP verb.
+# <a name=“Overview”></a>Overview
+## <a name="HTTP verbs"></a>HTTP verbs
 
-# <a name="Asynchronous_LDS_Service"></a>Asynchronous LDS Service
-## <a name="HTTP-status-codes"></a>HTTP status codes
+Entitlement-service tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP verbs. Due to some external factors it had to merge the POST and PATCH verbs, i.e. re-POSTing an entitlement will update the existing entitlement if any.
 
-License Delivery Service tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP status codes.
+| Verb   | Usage                                                   |
+| ------ | ------------------------------------------------------- |
+| `GET`  | Used to retrieve a resource                             |
+| `POST` | Used to create a new resource or update an existing one |
 
-| Status code | Usage                                                                                            |
-| ----------- | ------------------------------------------------------------------------------------------------ |
-| `200 OK`    | Always returns a status 200. The status code in the body determines the client’s request status. |
-
-# <a name="Activate_License_Request"></a>Activate License Request
-
-A `POST` request that asks LDS to activate a license.
-
-### <a name="req_1">Request
-
-#### <a name="req_1_str">Request Structure
-
-| Path                  | Type     | Description                         |
-| --------------------- | -------- | ----------------------------------- |
-| `activationCode`      | `String` | Activation Code to Activate         |
-| `action`              | `Number` | action to be used to activate       |
-| `authenticationToken` | `String` | authentication token to verify user |
-| `hostId`              | `String` | host id to activate on              |
-| `clientTime`          | `Number` | time on the clients machine         |
-| `productName`         | `String` | Name of the product                 |
-| `usage`               | `Array`  | Usage Data from User                |
-| `productVersion`      | `String` | Name of the product                 |
+## <a name="HTTP status codes"></a>HTTP status codes
 
 
-#### <a name="req_1_curl">Example Curl Request
+Entitlement-service tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP status codes.
+
+| Status code                                                                                                                                                                                                | Usage                                                                                          |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `200 OK`                                                                                                                                                                                                   | Standard response for successful HTTP requests.                                                |
+| The actual response will depend on the request method used.                                                                                                                                                | In a GET request, the response will contain an entity corresponding to the requested resource. |
+| In a POST request, the response will contain an entity describing or containing the result of the action.                                                                                                  | `201 Created`                                                                                  |
+| The request has been fulfilled and resulted in a new resource being created.                                                                                                                               | `204 No Content`                                                                               |
+| The server successfully processed the request, but is not returning any content.                                                                                                                           | `400 Bad Request`                                                                              |
+| The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing). | `404 Not Found`                                                                                |
+# <a name=“Resources”></a>Resources
+
+## <a name=“Entitlement”></a>Entitlement
+
+The Entitlement resource is used to create, modify and fetch entitlements.
+
+### Creating/Updating Entitlement
+
+A `POST` request creates a new entitlement or updates an existing entitlement having same activation code.
+
+### <a name="create-ent-1"></a>Request structure
+
+| Path             | Type    | Description                               | Constraints                         |
+| ---------------- | ------- | ----------------------------------------- | ----------------------------------- |
+| activationCode   | String  | The activation code.                      | Must not be null. Must not be empty |
+| webkey           | String  | The customer’s webkey                     | Must not be null. Must not be empty |
+| email            | String  | The customer’s email                      | Must not be null. Must not be empty |
+| firstName        | String  | The customer’s first name                 | Must not be null. Must not be empty |
+| lastName         | String  | The customer’s last name                  | Must not be null. Must not be empty |
+| customerName     | String  | The customer’s full name                  | Can be null or empty                |
+| companyName      | String  | The customer’s company name               | Must not be null. Must not be empty |
+| productSku       | String  | The Product SKU.                          | Must not be null. Must not be empty |
+| version          | String  | The version of the product.               | Must not be null. Must not be empty |
+| soldTo           | String  | The customer’s soldto Id.                 | Can be empty or null                |
+| lastRenewal      | Number  | Last time the subscription was renewed.   | Must not be null. Must not be empty |
+| startDate        | Number  | Start date of the subscription.           | Must not be null. Must not be empty |
+| expirationDate   | Number  | Expiration date of the subscription.      | Must not be null. Must not be empty |
+| cancellationDate | Number  | Cancellation date of the subscription.    | Must not be null. Must not be empty |
+| customerId       | String  | Id of the customer who purchases in store | Must not be null. Must not be empty |
+| term             | String  | Subscription term chosen in store         | Must not be null. Must not be empty |
+| quantity         | Number  | Quantity purchased in store               | Must not be null. Must not be empty |
+| active           | Boolean | Is the subscription active                | Must not be null. Must not be empty |
+
+
+### <a name="create_ent_2"></a>Example request
 
 ``` bash
-$ curl 'http://localhost:8080/v1/subscription' -i -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/json;charset=UTF-8' -d '{"activationCode":"ActivationCode","authenticationToken":"authenticationToken","hostId":"hostId","taskId":"06ac22e2-6f86-40b9-a30f-492c5bee6bc1","productName":"productName","productVersion":"productVersion","clientTime":0,"action":4,"usage":[]}'
+$ curl 'http://localhost:8080/v1/entitlement/' -i -X POST -H 'Content-Type: application/json' -d '{"lastRenewal":1537924767270,"active":true,"startDate":1537924767270,"expirationDate":1537924767270,"cancellationDate":1537924767270,"quantity":1,"soldTo":"0001588362","webkey":"john.doe@xyz.com","email":"john.doe@xyz.com","firstName":"John","lastName":"Doe","companyName":"John Doe","activationCode":"8974164192548872","productSku":"NX101","version":"11","customerName":"John Doe","customerId":"1234","term":"MONTHLY"}'
 ```
 
-#### <a name="req_1_req">Example Request
+
+### <a name="create_ent_3"></a>Example response
 
 ``` http
-POST /v1/subscription HTTP/1.1
-Content-Type: application/json;charset=UTF-8
-Accept: application/json;charset=UTF-8
-Host: localhost:8080
-Content-Length: 244
-
-{"activationCode":"ActivationCode","authenticationToken":"authenticationToken","hostId":"hostId","taskId":"06ac22e2-6f86-40b9-a30f-492c5bee6bc1","productName":"productName","productVersion":"productVersion","clientTime":0,"action":4,"usage":[]}
+HTTP/1.1 200 OK
 ```
 
-### <a name="req_1_res">Response
+### <a name="fetch_ent"></a>Fetching entitlement
 
-On receiving an Activate request the LDS Service will respond with a Poll Request which will contain a taskId to reference. The client uses this taskId to poll the LDS Service for the latest status of the task. The format of the Poll Request/Response can be found below.
-Ulimately the poll request will return the following response on success.
+A `GET` request fetches a specific entitlement.
 
-#### <a name="req_1_res_str">Activate Response Structure
+### <a name="fetch_ent_1"></a>Response structure
 
-| Path        | Type     | Description                           |
-| ----------- | -------- | ------------------------------------- |
-| `licenseId` | `String` | license ID can be populated           |
-| `license`   | `String` | encrypted license can be included     |
-| `status`    | `Number` | status code of result                 |
-| `expire`    | `Number` | expiration date of license can be set |
+| Path                            | Type      | Description                                             |
+| ------------------------------- | --------- | ------------------------------------------------------- |
+| `id`                            | `Number`  | Id of the entitlement in database.                      |
+| `activationCode`                | `String`  | Activation code.                                        |
+| `customer.id`                   | `Number`  | Customer id in database.                                |
+| `customer.firstName`            | `String`  | Customer’s first name.                                  |
+| `customer.lastName`             | `String`  | Customer’s last name.                                   |
+| `customer.fullName`             | `String`  | Customer’s full name.                                   |
+| `customer.companyName`          | `String`  | Customer’s company name.                                |
+| `customer.email`                | `String`  | Customer’s email.                                       |
+| `customer.webkey`               | `String`  | Customer’s webkey.                                      |
+| `product.id`                    | `Number`  | Id of the product in database.                          |
+| `product.sku`                   | `String`  | Product SKU.                                            |
+| `product.version`               | `String`  | Product version.                                        |
+| `product.features`              | `Array`   | Array of license features fro the product.              |
+| `product.maxActivationsAllowed` | `Number`  | Maximum number of activations possible for the product. |
+| `product.gracePeriodInDays`     | `Number`  | Grace period allowed for the product.                   |
+| `lastRenewal`                   | `Number`  | Last time the subscription was renewed.                 |
+| `startDate`                     | `Number`  | Start date of the subscription.                         |
+| `expirationDate`                | `Null`    | Expiration date of the subscription if any.             |
+| `active`                        | `Boolean` | Is the subscription active.                             |
+| `soldto`                        | `String`  | Soldto for the entitlement.                             |
+| `cancellationDate`              | `Number`  | Cancellation date for the entitlement.                  |
+| `buyerId`                       | `String`  | Id of the purchaser.                                    |
+| `subscriptionTerm`              | `String`  | Subscription term chosen in store.                      |
+| `quantity`                      | `Number`  | Quantity chosen in store.                               |
 
 
-#### <a name="req_1_res_eg">Activate Response Example
+### <a name="fetch_ent_2"></a>Example request
+
+``` bash
+$ curl 'http://localhost:8080/v1/entitlement/8974162192548872' -i
+```
+
+
+### <a name="fetch_ent_3"></a>Example response
 
 ``` http
 HTTP/1.1 200 OK
 Content-Type: application/json;charset=UTF-8
-Content-Length: 76
-
-{"status":0,"license":"license","licenseId":"licenseId","expire":1537992023}
-```
-
-
-## <a name="Dectivate_License_Request">Deactivate License Request
-
-A `POST` request that asks LDS to deactivate a license
-
-### <a name="req_2">Request
-
-#### <a name="req_2_str">Request Structure
-
-| Path                  | Type     | Description                         |
-| --------------------- | -------- | ----------------------------------- |
-| `activationCode`      | `String` | Activation Code to Activate         |
-| `action`              | `Number` | action to be used to deactivate     |
-| `authenticationToken` | `String` | authentication token to verify user |
-| `hostId`              | `String` | host id to activate on              |
-| `clientTime`          | `Number` | time on the clients machine         |
-| `productName`         | `String` | Name of the product                 |
-| `licenseId`           | `String` | License Id to be deactivated        |
-| `usage`               | `Array`  | Usage Data from User                |
-| `productVersion`      | `String` | Name of the product                 |
-
-
-#### <a name="req_2_curl">Example Curl Request
-
-``` bash
-$ curl 'http://localhost:8080/v1/subscription' -i -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/json;charset=UTF-8' -d '{"activationCode":"activationCode","authenticationToken":"authorizationToken","hostId":"hostId","taskId":"46c03905-c77a-4f1e-ba3c-3ba34413eb37","productName":"productName","productVersion":"productVersion","licenseId":"licenseId","clientTime":0,"action":4,"usage":[]}'
-```
-
-
-#### <a name="req_2_req">Example Request
-
-``` http
-POST /v1/subscription HTTP/1.1
-Content-Type: application/json;charset=UTF-8
-Accept: application/json;charset=UTF-8
-Host: localhost:8080
-Content-Length: 267
-
-{"activationCode":"activationCode","authenticationToken":"authorizationToken","hostId":"hostId","taskId":"46c03905-c77a-4f1e-ba3c-3ba34413eb37","productName":"productName","productVersion":"productVersion","licenseId":"licenseId","clientTime":0,"action":4,"usage":[]}
-```
-
-
-### <a name="req_2_res">Response
-
-On receiving an Deactivate request the LDS Service will respond with a
-Poll Request which will contain a taskId to reference. The client uses
-this taskId to poll the LDS Service for the latest status of the task.
-The format of the Poll Request/Response can be found below.
-
-Ultimately the poll request will return the following response on
-success.
-
-#### <a name="req_2_res_str">Deactivate Response Structure
-
-| Path     | Type     | Description           |
-| -------- | -------- | --------------------- |
-| `status` | `Number` | status code of result |
-
-
-#### <a name="req_2_res_eg">Deactivate Response Example
-
-``` http
-HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
-Content-Length: 12
-
-{"status":0}
-```
-
-## <a name="Refresh_License_Request">Refresh License Request
-
-A `POST` request that asks LDS to refresh a license
-
-### <a name="req_3">Request
-
-#### <a name="req_3_str">Request Structure
-
-| Path                  | Type     | Description                         |
-| --------------------- | -------- | ----------------------------------- |
-| `activationCode`      | `String` | Activation Code to Activate         |
-| `action`              | `Number` | action to be used to activate       |
-| `authenticationToken` | `String` | authentication token to verify user |
-| `hostId`              | `String` | host id to activate on              |
-| `clientTime`          | `Number` | time on the clients machine         |
-| `productName`         | `String` | Name of the product                 |
-| `usage`               | `Array`  | Usage Data from User                |
-| `licenseId`           | `String` | License Id to refresh               |
-| `productVersion`      | `String` | Name of the product                 |
-
-#### <a name="req_3_curl">Example Curl Request
-
-``` bash
-$ curl 'http://localhost:8080/v1/subscription' -i -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/json;charset=UTF-8' -d '{"activationCode":"ActivationCode","authenticationToken":"authenticationToken","hostId":"hostId","taskId":"fce96234-4b13-4a20-90c7-f9518323bcb0","productName":"productName","productVersion":"productVersion","licenseId":"liceenseId","clientTime":1537982023,"action":4,"usage":[]}'
-```
-
-#### <a name="req_3_req">Example Request
-
-``` http
-POST /v1/subscription HTTP/1.1
-Content-Type: application/json;charset=UTF-8
-Accept: application/json;charset=UTF-8
-Host: localhost:8080
-Content-Length: 278
-
-{"activationCode":"ActivationCode","authenticationToken":"authenticationToken","hostId":"hostId","taskId":"fce96234-4b13-4a20-90c7-f9518323bcb0","productName":"productName","productVersion":"productVersion","licenseId":"liceenseId","clientTime":1537982023,"action":4,"usage":[]}
-```
-
-### <a name="req_3_res">Response
-
-On receiving an Refresh request the LDS Service will respond with a Poll Request which will contain a taskId to reference. The client uses this taskId to poll the LDS Service for the latest status of the task. The format of the Poll Request/Response can be found below.
-Ulimately the poll request will return the following response on success.
-
-#### <a name="req_3_res_str">Refresh Response Structure
-
-| Path        | Type     | Description                           |
-| ----------- | -------- | ------------------------------------- |
-| `licenseId` | `String` | license ID can be populated           |
-| `license`   | `String` | encrypted license can be included     |
-| `status`    | `Number` | status code of result                 |
-| `expire`    | `Number` | expiration date of license can be set |
-
-#### <a name="req_3_res_eg">Refresh Response Example
-
-``` http
-HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
-Content-Length: 76
-
-{"status":0,"license":"license","licenseId":"licenseId","expire":1537992023}
-```
-
-## <a name="req_4">Poll Message
-
-A `POST` request that asks LDS to poll for that status of an activate, deactivate, refresh
-
-### <a name="req_4_str">Request Structure
-
-| Path     | Type     | Description                   |
-| -------- | -------- | ----------------------------- |
-| `taskId` | `String` | Task Id to poll               |
-| `action` | `Number` | action to be used to activate |
-
-
-### <a name="req_4_curl">Example Curl Request
-
-``` bash
-$ curl 'http://localhost:8080/v1/subscription' -i -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/json;charset=UTF-8' -d '{"taskId":"04ed0319-c6a6-4bca-b99e-f5ca343d95f0","clientTime":0,"action":4,"usage":[]}'
-```
-
-### <a name="req_4_req">Example Request
-
-``` http
-POST /v1/subscription HTTP/1.1
-Content-Type: application/json;charset=UTF-8
-Accept: application/json;charset=UTF-8
-Host: localhost:8080
-Content-Length: 86
-
-{"taskId":"04ed0319-c6a6-4bca-b99e-f5ca343d95f0","clientTime":0,"action":4,"usage":[]}
-```
-
-### <a name="req_4_res_str">Response Structure
-
-| Path         | Type     | Description                |
-| ------------ | -------- | -------------------------- |
-| `status`     | `Number` | status code of result      |
-| `taskId`     | `String` | task Id to poll            |
-| `waitTimeMs` | `Number` | expiration date of license |
-
-### <a name="req_4_res_eg">Example Response
-
-Upon receiving a POLL request, LDS will reply with either the status of the task if it has completed or with another poll response.
-
-Poll Response 
-``` http
-HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
-Content-Length: 78
-
-{"status":13,"taskId":"04ed0319-c6a6-4bca-b99e-f5ca343d95f0","waitTimeMs":100}
-```
-
-# <a name="Synchronous_LDS_Service">Synchronous LDS Service
-
-# <a name="syn_HTTP-status-codes">HTTP status codes
-
-License Delivery Service tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP status codes.
-
-| Status code | Usage                                                                                            |
-| ----------- | ------------------------------------------------------------------------------------------------ |
-| `200 OK`    | Always returns a status 200. The status code in the body determines the client’s request status. |
-
-# <a name="syn_Activate_License_Request">Activate License Request
-
-A `POST` request that asks LDS to activate a license.
-
-## <a name="syn_req_1">Request
-
-### <a name="syn_req_1_str">Request Structure
-
-| Path                  | Type     | Description                         |
-| --------------------- | -------- | ----------------------------------- |
-| `activationCode`      | `String` | Activation Code to Activate         |
-| `action`              | `Number` | action to be used to activate       |
-| `authenticationToken` | `String` | authentication token to verify user |
-| `hostId`              | `String` | host id to activate on              |
-| `productName`         | `String` | Name of the product                 |
-| `usage`               | `Array`  | Usage Data from User                |
-| `machineSerial`       | `String` | Machine Serial Number               |
-| `productVersion`      | `String` | Name of the product                 |
-
-### <a name="syn_req_1_curl">Example Curl Request
-
-``` bash
-$ curl 'http://localhost:8080/v1/subscription/synchronous' -i -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/json;charset=UTF-8' -d '{"activationCode":"ActivationCode","authenticationToken":"AuthenticationToken","hostId":"hostid","machineSerial":"123435","productName":"productName","productVersion":"productVersion","clientTime":0,"action":1,"usage":[]}'
-```
-
-### <a name="syn_req_1_req">Example Request
-
-``` http
-POST /v1/subscription/synchronous HTTP/1.1
-Content-Type: application/json;charset=UTF-8
-Accept: application/json;charset=UTF-8
-Host: localhost:8080
-Content-Length: 221
-
-{"activationCode":"ActivationCode","authenticationToken":"AuthenticationToken","hostId":"hostid","machineSerial":"123435","productName":"productName","productVersion":"productVersion","clientTime":0,"action":1,"usage":[]}
-```
-
-## <a name="syn_req_1_res">Response
-
-### <a name="syn_req_1_res_str">Activate Response Structure
-
-| Path        | Type     | Description                       |
-| ----------- | -------- | --------------------------------- |
-| `licenseId` | `String` | license ID can be populated       |
-| `license`   | `String` | encrypted license can be included |
-| `status`    | `Number` | status code of result             |
-| `message`   | `String` | Status Message                    |
-
-### <a name="syn_req_1_res_eg">Activate Response Example
-
-``` http
-HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
-Content-Length: 79
-
-{"status":0,"message":"Successful","license":"license","licenseId":"licenseid"}
-```
-
-# <a name="syn_Deactivate_License_Request">Deactivate License Request
-
-A `POST` request that asks LDS to deactivate a license
-
-## <a name="syn_req_2">Request
-
-### <a name="syn_req_2_str">Request Structure
-
-| Path                  | Type     | Description                         |
-| --------------------- | -------- | ----------------------------------- |
-| `activationCode`      | `String` | Activation Code to Activate         |
-| `action`              | `Number` | action to be used to activate       |
-| `authenticationToken` | `String` | authentication token to verify user |
-| `hostId`              | `String` | host id to activate on              |
-| `productName`         | `String` | Name of the product                 |
-| `machineSerial`       | `String` | Machine Serial Number               |
-| `productVersion`      | `String` | Name of the product                 |
-
-### <a name="syn_req_2_curl">Example Curl Request
-
-``` bash
-$ curl 'http://localhost:8080/v1/subscription/synchronous' -i -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/json;charset=UTF-8' -d '{"activationCode":"ActivationCode","authenticationToken":"AuthenticationToken","hostId":"hostid","machineSerial":"123435","productName":"productName","productVersion":"productVersion","clientTime":0,"action":2,"usage":[]}'
-```
-
-### <a name="syn_req_2_req">Example Request
-
-``` http
-POST /v1/subscription/synchronous HTTP/1.1
-Content-Type: application/json;charset=UTF-8
-Accept: application/json;charset=UTF-8
-Host: localhost:8080
-Content-Length: 221
-
-{"activationCode":"ActivationCode","authenticationToken":"AuthenticationToken","hostId":"hostid","machineSerial":"123435","productName":"productName","productVersion":"productVersion","clientTime":0,"action":2,"usage":[]}
-```
-
-## <a name="syn_req_2_res">Response
-
-### <a name="syn_req_2_res_str">Deactivate Response Structure
-
-| Path      | Type     | Description           |
-| --------- | -------- | --------------------- |
-| `status`  | `Number` | status code of result |
-| `message` | `String` | Status Message        |
-
-### <a name="syn_req_2_res_eg">Deactivate Response Example
-
-``` http
-HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
-Content-Length: 35
-
-{"status":0,"message":"Successful"}
-```
-
-# <a name="syn_Refresh_License_Request">Refresh License Request
-
-A `POST` request that asks LDS to refresh a license
-
-## <a name="syn_req_3">Request
-
-### <a name="syn_req_3_str">Request Structure
-
-| Path                  | Type     | Description                         |
-| --------------------- | -------- | ----------------------------------- |
-| `activationCode`      | `String` | Activation Code to Activate         |
-| `action`              | `Number` | action to be used to activate       |
-| `authenticationToken` | `String` | authentication token to verify user |
-| `hostId`              | `String` | host id to activate on              |
-| `productName`         | `String` | Name of the product                 |
-| `machineSerial`       | `String` | Machine Serial Number               |
-| `productVersion`      | `String` | Name of the product                 |
-
-
-### <a name="syn_req_3_curl">Example Curl Request
-
-``` bash
-$ curl 'http://localhost:8080/v1/subscription/synchronous' -i -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/json;charset=UTF-8' -d '{"activationCode":"ActivationCode","authenticationToken":"AuthenticationToken","hostId":"hostid","machineSerial":"123435","productName":"productName","productVersion":"productVersion","clientTime":0,"action":3,"usage":[]}'
-```
-
-### <a name="syn_req_3_req">Example Request
-
-``` http
-POST /v1/subscription/synchronous HTTP/1.1
-Content-Type: application/json;charset=UTF-8
-Accept: application/json;charset=UTF-8
-Host: localhost:8080
-Content-Length: 221
-
-{"activationCode":"ActivationCode","authenticationToken":"AuthenticationToken","hostId":"hostid","machineSerial":"123435","productName":"productName","productVersion":"productVersion","clientTime":0,"action":3,"usage":[]}
-```
-
-## <a name="syn_req_3_res">Response
-
-### <a name="syn_req_3_res_str">Refresh Response Structure
-
-| Path        | Type     | Description                       |
-| ----------- | -------- | --------------------------------- |
-| `licenseId` | `String` | license ID can be populated       |
-| `license`   | `String` | encrypted license can be included |
-| `status`    | `Number` | status code of result             |
-| `message`   | `String` | Status Message                    |
-
-### <a name="syn_req_3_res_eg">Refresh Response Example
-
-``` http
-HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
-Content-Length: 79
-
-{"status":0,"message":"Successful","license":"license","licenseId":"licenseid"}
-```
-
-## <a name="syn_req_3_seat">Available License Seats Request
-
-A `GET` request that asks LDS to retrieve the maximum number and the current number of available license seats associated with the given Activation Code. A Http Status of 404 indicates that the Entitlement does not exist.
-
-### <a name="syn_req_3_seat_curl">Example curl request
-
-Below is an sample curl request for an available license seat query.
-
-``` bash
-$ curl 'http://localhost:8080/v1/subscription/synchronous/available?activationCode=activationCode_qwerty123' -i
-```
-
-### <a name="syn_req_3_seat_req">Example request
-
-Below is an sample request for an available license seat query.
-
-``` http
-GET /v1/subscription/synchronous/available?activationCode=activationCode_qwerty123 HTTP/1.1
-Host: localhost:8080
-```
-
-### <a name="syn_req_3_seat_res">Example response
-
-Below is an expected response for an available license seat query.
-
-``` http
-HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
-Content-Length: 57
+Content-Length: 710
 
 {
-  "maxLicenseQuantity" : 5,
-  "availableSeats" : 3
+  "id" : 0,
+  "activationCode" : "8974162192548872",
+  "customer" : {
+    "id" : 0,
+    "firstName" : "John",
+    "lastName" : "Doe",
+    "fullName" : "John Doe",
+    "companyName" : "John Doe",
+    "email" : "john.doe@xyz.com",
+    "webkey" : "john.doe@xyz.com"
+  },
+  "product" : {
+    "id" : 0,
+    "sku" : "NX101",
+    "version" : "11",
+    "features" : [ ],
+    "maxActivationsAllowed" : -1,
+    "gracePeriodInDays" : 0
+  },
+  "lastRenewal" : 1537924767045,
+  "startDate" : 1537924767045,
+  "expirationDate" : null,
+  "active" : true,
+  "soldto" : "0001588362",
+  "cancellationDate" : 1537924767045,
+  "buyerId" : "1234",
+  "subscriptionTerm" : "MONTHLY",
+  "quantity" : 1
+}
+```
+
+
+### <a name="fetch_ent_not_exists"></a>Fetching entitlement which doesn’t exist
+
+A `GET` request with bad activation code.
+
+#### <a name="fetch_ent_not_exists_1"></a>Example request
+
+``` bash
+$ curl 'http://localhost:8080/v1/entitlement/99999999999' -i
+```
+
+
+#### <a name="fetch_ent_not_exists_2"></a>Example response
+
+``` http
+HTTP/1.1 404 Not Found
+```
+
+
+### <a name="query_ent"></a>Querying entitlements by Webkey
+
+A `GET` request with the url parameter, Webkey, fetches an array of entitlements. This HTTP GET api supports the 200, 204, 400 and 404 status codes. A status 400 should be expected if a webkey is not provided. A status 204 should be expected if a webkey is provided but the customer does not exist or the customer does not have any entitlements. A status 200 along with an array of entitlements should be expected if both customer and entitlements of associated webkey exist.
+
+#### <a name="query_ent_1"></a>Response structure
+
+| Path            | Type     | Description                                                       |
+| --------------- | -------- | ----------------------------------------------------------------- |
+| `meta`          | `Object` | The HTTP Response Meta Data.                                      |
+| `meta.count`    | `String` | The total number of Entitlements that matched the query.          |
+| `meta.customer` | `Object` | The Customer of which the list of queried Entitlements belong to. |
+| `content`       | `Array`  | The List of Entitlements.                                         |
+
+
+#### <a name="query_ent_2"></a>Example curl request
+
+``` bash
+$ curl 'http://localhost:8080/v1/entitlement?webKey=cj3IsnS7Zb' -i
+```
+
+
+#### <a name="query_ent_3"></a>Example request
+
+``` http
+GET /v1/entitlement?webKey=cj3IsnS7Zb HTTP/1.1
+Host: localhost:8080
+```
+
+
+#### <a name="query_ent_4"></a>Example response
+
+``` http
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1435
+
+{
+  "meta" : {
+    "count" : "2",
+    "customer" : {
+      "id" : 27138924250294,
+      "firstName" : "f4B0OlcUyb",
+      "lastName" : "T1nNw29atc",
+      "fullName" : "R1VhBvbEFw",
+      "companyName" : "4juwxi1IdO",
+      "email" : "ZXspPdV0_W",
+      "webkey" : "cj3IsnS7Zb"
+    }
+  },
+  "content" : [ {
+    "activationCode" : "cj3IsnS7Zb0",
+    "product" : {
+      "id" : 27138924850138,
+      "sku" : "ajFyTrbdFM",
+      "version" : "Lk23qGOlcC",
+      "features" : [ "JFg1CDnua_", "IdA4iB08Mf", "Z6WXjGUyDp", "E2PYJ2ZSD5", "rLDkJhpnrs" ],
+      "maxActivationsAllowed" : 579291536,
+      "gracePeriodInDays" : 1609834474
+    },
+    "lastRenewal" : 1537924767165,
+    "startDate" : 1537924767165,
+    "expirationDate" : null,
+    "active" : false,
+    "soldto" : null,
+    "licenseType" : "REGULAR",
+    "subscriptionTerm" : "MONTHLY"
+  }, {
+    "activationCode" : "cj3IsnS7Zb1",
+    "product" : {
+      "id" : 27138924850138,
+      "sku" : "ajFyTrbdFM",
+      "version" : "Lk23qGOlcC",
+      "features" : [ "JFg1CDnua_", "IdA4iB08Mf", "Z6WXjGUyDp", "E2PYJ2ZSD5", "rLDkJhpnrs" ],
+      "maxActivationsAllowed" : 579291536,
+      "gracePeriodInDays" : 1609834474
+    },
+    "lastRenewal" : 1537924767165,
+    "startDate" : 1537924767165,
+    "expirationDate" : null,
+    "active" : false,
+    "soldto" : null,
+    "licenseType" : "REGULAR",
+    "subscriptionTerm" : "MONTHLY"
+  } ]
 }
 ```
