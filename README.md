@@ -28,7 +28,7 @@
 Entitlement-service is a RESTful microservice for storing and fetching entitlements related to LDS project. It is an external facing RESTful microservice where data is pushed to it by Subscription Service.The internal services of License Delivery Service are the consumers of this service. This service only supports the GET and POST HTTP verbs.
 
 # <a name=“Overview”></a>Overview
-## <a name=“HTTP verbs”></a>HTTP verbs
+## <a name="HTTP verbs"></a>HTTP verbs
 
 Entitlement-service tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP verbs. Due to some external factors it had to merge the POST and PATCH verbs, i.e. re-POSTing an entitlement will update the existing entitlement if any.
 
